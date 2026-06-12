@@ -9,3 +9,5 @@ ENV N8N_HOST=n8n-production-b99a.up.railway.app
 ENV GENERIC_TIMEZONE=America/Sao_Paulo
 ENV TZ=America/Sao_Paulo
 ENV PORT=5678
+
+USER node
