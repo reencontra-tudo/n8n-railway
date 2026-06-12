@@ -64,8 +64,10 @@ stdout_logfile=/var/log/supervisor/nginx.out.log
 SUPERVISOR_CONF
 
 # Configurações do n8n
-ENV N8N_SECURE_COOKIE=false
-ENV N8N_SAMESITE_COOKIE=none
+# N8N_SECURE_COOKIE=true garante que o cookie tem flag Secure (necessário para HTTPS)
+# SameSite=lax é compatível com Chrome moderno sem precisar de flag Secure explícita
+ENV N8N_SECURE_COOKIE=true
+ENV N8N_SAMESITE_COOKIE=lax
 ENV N8N_EDITOR_BASE_URL=https://n8n-production-b99a.up.railway.app
 ENV WEBHOOK_URL=https://n8n-production-b99a.up.railway.app
 ENV N8N_PROTOCOL=https
