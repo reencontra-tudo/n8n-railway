@@ -7,8 +7,5 @@ mkdir -p /data
 chown -R node:node /data
 chmod -R 755 /data
 
-# Remover variável problemática que tenta ler arquivo inexistente
-unset DB_SQLITE_DATABASE_FILE
-
-# Iniciar o n8n como usuário node
-exec su-exec node n8n start
+# Iniciar o n8n como usuário node usando gosu
+exec gosu node n8n start
