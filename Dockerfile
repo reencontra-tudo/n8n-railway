@@ -2,11 +2,12 @@ FROM n8nio/n8n:latest
 
 USER root
 
-# Instalar nginx para proxy reverso que remove X-Frame-Options
-RUN apt-get update && apt-get install -y nginx supervisor && rm -rf /var/lib/apt/lists/*
+# Instalar nginx e supervisor (Alpine Linux usa apk)
+RUN apk add --no-cache nginx supervisor
 
-# Configuração do nginx como proxy reverso
-RUN cat > /etc/nginx/sites-available/default << 'NGINX_CONF'
+# Configuração do nginx como proxy reverso que remove X-Frame-Options
+RUN mkdir -p /etc/nginx/http.d && \
+    cat > /etc/nginx/http.d/default.conf << 'NGINX_CONF'
 server {
     listen 8080;
     server_name _;
@@ -34,11 +35,16 @@ server {
 }
 NGINX_CONF
 
-# Configuração do supervisor para rodar n8n e nginx juntos
-RUN cat > /etc/supervisor/conf.d/supervisord.conf << 'SUPERVISOR_CONF'
+# Remover config padrão do nginx Alpine
+RUN rm -f /etc/nginx/conf.d/default.conf 2>/dev/null; \
+    mkdir -p /var/log/supervisor /var/run/supervisor
+
+# Configuração do supervisor
+RUN cat > /etc/supervisord.conf << 'SUPERVISOR_CONF'
 [supervisord]
 nodaemon=true
 logfile=/var/log/supervisor/supervisord.log
+pidfile=/var/run/supervisor/supervisord.pid
 
 [program:n8n]
 command=n8n start
@@ -72,4 +78,4 @@ ENV N8N_LOG_LEVEL=info
 # Railway usa PORT para saber qual porta expor - nginx escuta nessa porta
 ENV PORT=8080
 
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
